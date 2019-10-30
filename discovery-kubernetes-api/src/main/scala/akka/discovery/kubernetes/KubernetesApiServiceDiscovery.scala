@@ -204,7 +204,11 @@ class KubernetesApiServiceDiscovery(system: ActorSystem) extends ServiceDiscover
     } yield {
       val path = Uri.Path.Empty / "api" / "v1" / "namespaces" / namespace / "pods"
       val query = Uri.Query("labelSelector" -> labelSelector)
-      val uri = Uri.from(scheme = "https", host = host, port = port).withPath(path).withQuery(query)
+      val protocol = settings.apiServiceProtocol match {
+        case "http" => "http"
+        case _ => "https"
+      }
+      val uri = Uri.from(scheme = protocol, host = host, port = port).withPath(path).withQuery(query)
 
       HttpRequest(uri = uri, headers = Seq(Authorization(OAuth2BearerToken(token))))
     }
